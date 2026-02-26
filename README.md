@@ -1,33 +1,83 @@
-# Quantitative Discursive Analysis
+# Quantitative Discursive Analysis (QDA)
 
 (C) 2019 Mark M. Bailey, PhD
 
 ## About
-Quantitative Discursive Analysis (QDA) will convert bodies of text into mathematical graph objects built from noun phrases, where each noun or modifier becomes a vertex, and each edge is determined by how the nouns and vertexes are linked within phrases.  The more central the noun is to the overall text content, the higher the centrality measure of that particular noun.  Thus, the graph is a weighted representation of discursive content, making it more robust that simple keyword frequencies.  This object can be used to mathematically compare the discursive content of two or more bodies of text.  This is done by calculating the "resonance" between two bodies of text, where resonance is the cosine angle between the betweenness centralities of the intersection of all vertices.  This resonance value is normalized between [0,1], where 0 indicates no discursive similarity, and 1 indicates perfect discursive similarity.
+Quantitative Discursive Analysis (QDA) converts bodies of text into graph objects built from noun phrases. Each noun or modifier becomes a vertex, and edges are determined by how nouns and modifiers are linked within phrases. The more central a noun is to the overall text content, the higher its centrality measure. This makes the graph representation more robust than simple keyword frequencies.
 
-## Updates
-*2022-10-13: Updated resonance function to be more Pythonic.
+QDA compares discursive content by calculating **resonance** between two texts. Resonance is the cosine similarity of the betweenness-centrality vectors for the intersection of vertices in both texts. Values are normalized to `[0, 1]`, where `0` indicates no overlap and `1` indicates perfect overlap.
 
-## More information
-This tool is built on NetworkX and TextBlob.  Please see relevant documentation for additional information on what other calculations can be done on NetworkX graph objects generated using this library.
+## Installation
+```bash
+pip install .
+```
 
-## Download
-https://pypi.org/project/QDA/
+### Dependencies
+- Python 3.10+
+- `networkx`
+- `numpy`
+- `textblob`
 
-## Sample Usage
+### Important: TextBlob corpora required for default extractor
+The default noun phrase extraction method (`textblob`) requires TextBlob/NLTK corpora.
 
-`import QDA`
+```bash
+python -m textblob.download_corpora
+```
 
-### Instantiate discursive object.
-`text_graph = QDA.discursive_object('This is a string of your text.  For best results, this string should be at least as long as a typical news article.')`
+If corpora are unavailable, use the fallback extractor documented below.
 
-### Calculate resonance between two discursive objects.
-`a = QDA.resonate(text_graph_1, text_graph_2)` (noun phrase tuples : list)
+## Quickstart
 
-### Calculate resonance of discursive objects in series.
-`resonance_series = QDA.resonate_as_series(G_list)` (resonance values : dict)
+### Default extractor (`textblob`)
+```python
+import QDA
 
-### Calculate resonance between all members of a list.
-`d_community = QDA.discursive_community(G_list)`<br>
-`d_community.A` (Resonance adjacency matrix : ndarray)<br>
-`d_community.G` (Graph objhect built from adjacency matrix : NetworkX object)
+text_a = "This is a string of text about politics and economics."
+text_b = "This is a different string of text about music and art."
+
+g1 = QDA.discursive_object(text_a)  # noun_extractor='textblob' by default
+g2 = QDA.discursive_object(text_b)
+
+print(QDA.resonate(g1, g2))
+```
+
+### Fallback extractor (`simple`, no corpora required)
+```python
+import QDA
+
+text_a = "This is a string of text about politics and economics."
+text_b = "This is a different string of text about music and art."
+
+g1 = QDA.discursive_object(text_a, noun_extractor="simple")
+g2 = QDA.discursive_object(text_b, noun_extractor="simple")
+
+print(QDA.resonate(g1, g2))
+```
+
+## API summary
+- `QDA.discursive_object(text, noun_extractor="textblob")`
+- `QDA.resonate(g1, g2)`
+- `QDA.resonate_as_series(G_list)`
+- `QDA.resonate_as_matrix(G_list)`
+- `QDA.discursive_community(G_list)`
+
+## Development
+Run tests with:
+
+```bash
+pytest
+```
+
+## Notes and limitations
+- Large texts may be slow because betweenness centrality is computationally expensive.
+- Results depend on noun phrase extraction method (`textblob` vs `simple`).
+- `simple` is a compatibility fallback and may produce different phrase quality than TextBlob.
+
+## Changelog
+- **0.1.0**
+  - Added Python 3.10+ packaging support and pytest test suite.
+  - Added explicit TextBlob missing-corpora error messaging and optional simple extractor.
+  - Added NetworkX compatibility shim for NumPy graph conversion.
+  - Improved performance of matrix resonance and graph construction helpers.
+  - Added GitHub Actions CI for Python 3.10/3.11/3.12.
