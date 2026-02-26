@@ -1,30 +1,32 @@
 #!/usr/bin/env python
-"""
-@author: metalcorebear
-"""
+"""Setuptools configuration for QDA."""
 
-import setuptools
+from pathlib import Path
 
-with open("README.md", "r") as fh:
-    long_description = fh.read()
+from setuptools import setup
 
-setuptools.setup(
+ROOT = Path(__file__).parent
+README = (ROOT / "README.md").read_text(encoding="utf-8")
+
+setup(
     name="QDA",
-    version="0.0.2",
+    version="0.1.0",
     author="metalcorebear",
     author_email="mark.mbailey@gmail.com",
-    description="A tool for quantitatively measuring the discursive similarity between bodies of text.",
-    long_description=long_description,
+    description="A tool for quantitatively measuring discursive similarity between bodies of text.",
+    long_description=README,
     long_description_content_type="text/markdown",
     url="https://github.com/metalcorebear/Quantitative-Discursive-Analysis",
-    packages=setuptools.find_packages(),
-    install_requires=['networkx', 'textblob', 'numpy'],
     py_modules=["QDA"],
-    package_data={},
+    install_requires=["networkx>=2.8", "textblob>=0.17", "numpy>=1.23"],
+    extras_require={"dev": ["pytest>=7.0"]},
     classifiers=[
-        "Programming Language :: Python :: 3.9",
+        "Programming Language :: Python :: 3",
+        "Programming Language :: Python :: 3.10",
+        "Programming Language :: Python :: 3.11",
+        "Programming Language :: Python :: 3.12",
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
     ],
-    python_requires='>=2.7',
+    python_requires=">=3.10",
 )
