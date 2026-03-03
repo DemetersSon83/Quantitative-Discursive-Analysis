@@ -6,6 +6,7 @@ build-backend = "setuptools.build_meta"
 name = "QDA"
 version = "0.1.0"
 description = "QDA will convert bodies of text into graphs built from noun phrases, which can be used to compare the similarty between two or more bodies of text."
+dependencies = [
   "numpy",
   "textblob",
   "networkx",
