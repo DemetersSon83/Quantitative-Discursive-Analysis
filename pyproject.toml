@@ -4,3 +4,25 @@ build-backend = "setuptools.build_meta"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+
+
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "QDA"
+version = "0.1.0"
+description = "Quantitative Discursive Analysis (QDA) will convert bodies of text into mathematical graph objects built from noun phrases, where each noun or modifier becomes a vertex, and each edge is determined by how the nouns and vertexes are linked within phrases. The more central the noun is to the overall text content, the higher the centrality measure of that particular noun. Thus, the graph is a weighted representation of discursive content, making it more robust that simple keyword frequencies. This object can be used to mathematically compare the discursive content of two or more bodies of text. This is done by calculating the 'resonance' between two bodies of text, where resonance is the cosine angle between the betweenness centralities of the intersection of all vertices. This resonance value is normalized between [0,1], where 0 indicates no discursive similarity, and 1 indicates perfect discursive similarity."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [{ name = "Mark M. Bailey" }]
+dependencies = [
+  "numpy",
+  "textblob",
+  "networkx",
+]
+
+[tool.setuptools]
+py-modules = ["QDA"]
