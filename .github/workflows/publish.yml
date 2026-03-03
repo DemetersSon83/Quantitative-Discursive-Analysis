@@ -1,0 +1,90 @@
+name: publish
+
+on:
+  push:
+    tags:
+      - "v*"  # e.g. v0.1.0
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install build tooling
+        run: |
+          python -m pip install --upgrade pip
+          pip install build
+
+      - name: Verify git tag matches package version
+        if: startsWith(github.ref, 'refs/tags/v')
+        run: |
+          TAG_VERSION="${GITHUB_REF_NAME#v}"
+          PKG_VERSION=$(python - <<'PY'
+          import re
+          from pathlib import Path
+
+          text = Path('setup.py').read_text(encoding='utf-8')
+          m = re.search(r"version\s*=\s*['\"]([^'\"]+)['\"]", text)
+          if not m:
+              raise SystemExit('Could not find version=... in setup.py')
+          print(m.group(1))
+          PY
+          )
+
+          echo "Tag version: ${TAG_VERSION}"
+          echo "setup.py version: ${PKG_VERSION}"
+
+          if [ "${TAG_VERSION}" != "${PKG_VERSION}" ]; then
+            echo "::error::Tag version (${TAG_VERSION}) does not match setup.py version (${PKG_VERSION})."
+            echo "::error::Update setup.py version or push a tag like v${PKG_VERSION}."
+            exit 1
+          fi
+
+      - name: Run tests
+        run: |
+          pip install -e .[dev]
+          pytest -q
+
+      - name: Build sdist and wheel
+        run: python -m build
+
+      - name: Upload distributions
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist/*
+
+  publish:
+    needs: build
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v')
+    environment:
+      name: pypi
+      url: https://pypi.org/p/QDA
+    permissions:
+      id-token: write  # required for PyPI Trusted Publishing (OIDC)
+
+    steps:
+      - name: Download distributions
+        uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist
+
+      # Preferred: PyPI Trusted Publishing (no API token stored in GitHub).
+      # Fallback: If you *do* set a PYPI_API_TOKEN secret, this workflow will use it.
+      - name: Publish to PyPI (Trusted Publishing)
+        if: ${{ secrets.PYPI_API_TOKEN == '' }}
+        uses: pypa/gh-action-pypi-publish@release/v1
+
+      - name: Publish to PyPI (API token)
+        if: ${{ secrets.PYPI_API_TOKEN != '' }}
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          password: ${{ secrets.PYPI_API_TOKEN }}
