@@ -1,16 +1,47 @@
 [build-system]
-requires = ["setuptools>=68", "wheel"]
+requires = ["setuptools>=77", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "QDA"
 version = "0.1.0"
-description = "QDA will convert bodies of text into graphs built from noun phrases, which can be used to compare the similarty between two or more bodies of text."
-dependencies = [
-  "numpy",
-  "textblob",
-  "networkx",
+description = "A tool for quantitatively measuring discursive similarity between bodies of text."
+readme = { file = "README.md", content-type = "text/markdown" }
+requires-python = ">=3.10"
+
+# SPDX license expression (recommended)
+license = "MIT"
+license-files = ["LICENSE.txt"]
+
+authors = [
+  { name = "metalcorebear", email = "mark.mbailey@gmail.com" },
 ]
+
+keywords = ["text analysis", "networkx", "textblob", "nlp"]
+
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Operating System :: OS Independent",
+]
+
+dependencies = [
+  "networkx>=2.8",
+  "textblob>=0.17",
+  "numpy>=1.23",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=7.0"]
+
+[project.urls]
+Homepage = "https://github.com/metalcorebear/Quantitative-Discursive-Analysis"
+Repository = "https://github.com/metalcorebear/Quantitative-Discursive-Analysis"
 
 [tool.setuptools]
 py-modules = ["QDA"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
